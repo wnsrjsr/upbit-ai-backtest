@@ -1,0 +1,23 @@
+services:
+  trader:
+    build: .
+    restart: unless-stopped
+    command: python main.py
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    working_dir: /app
+  dashboard:
+    build: .
+    restart: unless-stopped
+    command: gunicorn -w 2 -b 0.0.0.0:8080 dashboard:app
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DB_PATH=/app/data/paper_trading.db
+      - CONTROL_PATH=/app/data/control.json
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD}
+    working_dir: /app
